@@ -3,15 +3,9 @@ import os
 import re
 from collections import Counter
 
-# ============================================================
-# ANÁLISIS AVANZADO: PATRONES DE ERROR EN EL DATASET
-# ============================================================
-
-# Cargar datos originales (antes de limpiar) para análisis detallado
 original_path = os.path.expanduser("~/Downloads/Ogappy_14_01_2026.xlsx")
 df_original = pd.read_excel(original_path)
 
-# Cargar datos limpios para comparación
 clean_path = os.path.expanduser("~/Downloads/datos_limpios.xlsx")
 df_limpio = pd.read_excel(clean_path)
 
@@ -19,14 +13,12 @@ print("=" * 80)
 print("ANÁLISIS AVANZADO: PATRONES DE ERROR EN EXTRACCIÓN")
 print("=" * 80)
 
-# ============================================================
-# 1. ERRORES POR INMOBILIARIA
-# ============================================================
+
 print("\n" + "=" * 80)
 print("1. ERRORES POR INMOBILIARIA (Top 15)")
 print("=" * 80)
 
-# Analizar completitud por inmobiliaria
+# Analizar completitud por inmobiliaia
 inmobiliaria_stats = []
 for inmo in df_original["inmobiliaria"].dropna().unique()[:15]:  # Top 15
     if pd.isna(inmo):
@@ -47,9 +39,7 @@ for inmo in df_original["inmobiliaria"].dropna().unique()[:15]:  # Top 15
 inmobiliaria_df = pd.DataFrame(inmobiliaria_stats).sort_values("Total Posts", ascending=False).head(15)
 print(inmobiliaria_df.to_string(index=False))
 
-# ============================================================
-# 2. ERRORES POR FUENTE (Type of Post)
-# ============================================================
+
 print("\n" + "=" * 80)
 print("2. ERRORES POR FUENTE (Source/Type of Post)")
 print("=" * 80)
@@ -71,14 +61,11 @@ for source in df_original["source"].dropna().unique():
 source_df = pd.DataFrame(source_stats).sort_values("Total", ascending=False)
 print(source_df.to_string(index=False))
 
-# ============================================================
-# 3. ERRORES POR LONGITUD DE TEXTO
-# ============================================================
+
 print("\n" + "=" * 80)
 print("3. ERRORES SEGÚN LONGITUD DE DESCRIPCIÓN")
 print("=" * 80)
 
-# Agregar longitud de descripción
 df_original["text_length"] = df_original["post_descripcion"].fillna("").str.len()
 
 # Categorizar por longitud
@@ -104,18 +91,13 @@ for cat in ["Muy Corto (0-100)", "Corto (100-300)", "Medio (300-500)", "Largo (5
 length_df = pd.DataFrame(length_stats)
 print(length_df.to_string(index=False))
 
-# ============================================================
-# 4. ERRORES CUANDO PRECIO NO ES EXPLÍCITO
-# ============================================================
 print("\n" + "=" * 80)
 print("4. ANÁLISIS DE FALLOS: PRECIO NO EXPLÍCITO")
 print("=" * 80)
 
-# Palabras clave de precios
 precio_keywords = ["precio", "costo", "valor", "usd", "usd", "ars", "$", "consulta", "oferta"]
 moneda_keywords = ["usd", "ars", "dólar", "peso", "uyu"]
 
-# Analizar descripciones con palabras de precio pero sin precio extraído
 def has_precio_keyword(text):
     if pd.isna(text):
         return False
@@ -131,7 +113,6 @@ def has_moneda_info(text):
 df_original["has_price_keyword"] = df_original["post_descripcion"].apply(has_precio_keyword)
 df_original["has_currency_info"] = df_original["post_descripcion"].apply(has_moneda_info)
 
-# Casos donde hay palabra de precio pero no se extrajo
 sin_precio_pero_palabra = df_original[(df_original["has_price_keyword"]) & (df_original["precio"].isna())]
 
 print(f"\nTotal registros con palabra 'precio': {df_original['has_price_keyword'].sum()}")
@@ -145,9 +126,7 @@ ejemplos = sin_precio_pero_palabra["post_descripcion"].head(3)
 for idx, (i, texto) in enumerate(ejemplos.items(), 1):
     print(f"  {idx}. {str(texto)[:100]}...")
 
-# ============================================================
-# 5. DETECCIÓN DE EMOJIS Y CARACTERES ESPECIALES
-# ============================================================
+
 print("\n" + "=" * 80)
 print("5. PATRONES DE ERROR: EMOJIS Y CARACTERES ESPECIALES")
 print("=" * 80)
@@ -155,10 +134,9 @@ print("=" * 80)
 def has_emoji(text):
     if pd.isna(text):
         return False
-    # Rango de emojis en Unicode
     emoji_pattern = re.compile(
         "["
-        "\U0001F1E0-\U0001F1FF"  # flags (iOS)
+        "\U0001F1E0-\U0001F1FF"  
         "\U0001F300-\U0001F5FF"  # symbols & pictographs
         "\U0001F600-\U0001F64F"  # emoticons
         "\U0001F680-\U0001F6FF"  # transport & map symbols
@@ -178,7 +156,7 @@ def has_emoji(text):
         "\u23cf"
         "\u23e9"
         "\u231a"
-        "\ufe0f"  # dingbats
+        "\ufe0f"  #
         "\u3030"
         "]+", flags=re.UNICODE
     )
@@ -200,21 +178,17 @@ print(f"\nComparativa de extracción (Superficie):")
 print(f"  Con emojis - % Superficie: {((con_emoji['superficie_cubierta'].notna() | con_emoji['superficie_total'].notna()).sum() / len(con_emoji) * 100).round(1)}%")
 print(f"  Sin emojis - % Superficie: {((sin_emoji['superficie_cubierta'].notna() | sin_emoji['superficie_total'].notna()).sum() / len(sin_emoji) * 100).round(1)}%")
 
-# ============================================================
-# 6. CONFUSIÓN M2 CON AMBIENTES
-# ============================================================
+
 print("\n" + "=" * 80)
 print("6. ANÁLISIS: CONFUSIÓN M2 CON AMBIENTES")
 print("=" * 80)
 
-# Buscar patrones donde hay números grandes en ambientes (confusión con m2)
 print("\nAmbientes extraídos - Distribución:")
 ambientes_no_nulos = df_original[df_original["ambientes"].notna()]["ambientes"]
 print(f"  Mínimo: {ambientes_no_nulos.min()}")
 print(f"  Máximo: {ambientes_no_nulos.max()}")
 print(f"  Media: {ambientes_no_nulos.mean():.2f}")
 
-# Valores sospechosos (> 10 ambientes probablemente sean m2)
 sospechosos = df_original[df_original["ambientes"] > 10]
 print(f"\nRegistros con AMBIENTES > 10 (probablemente confusión con m2): {len(sospechosos)}")
 if len(sospechosos) > 0:
@@ -222,26 +196,20 @@ if len(sospechosos) > 0:
     for idx, row in sospechosos.head(5).iterrows():
         print(f"    - Ambientes: {row['ambientes']}, Superficie cubierta: {row['superficie_cubierta']}")
 
-# ============================================================
-# 7. BARRIOS MAL ESCRITOS
-# ============================================================
+
 print("\n" + "=" * 80)
 print("7. ANÁLISIS: BARRIOS MAL ESCRITOS / INCONSISTENCIAS")
 print("=" * 80)
 
-# Analizar ubicaciones únicas
 ubicaciones = df_original["ubicacion"].dropna()
 print(f"\nTotal ubicaciones únicas: {len(ubicaciones.unique())}")
 
-# Buscar posibles duplicados con errores ortográficos
 from difflib import get_close_matches
 
-# Mostrar ubicaciones más frecuentes
 top_ubicaciones = ubicaciones.value_counts().head(20)
 print("\nTop 20 ubicaciones más frecuentes:")
 print(top_ubicaciones)
 
-# Buscar similares que podrían ser errores
 print("\nVerificando similares:")
 ubicaciones_lista = ubicaciones.unique().tolist()
 posibles_duplicados = []
@@ -256,42 +224,14 @@ if posibles_duplicados:
     for grupo in posibles_duplicados[:10]:
         print(f"  - {grupo}")
 
-# ============================================================
-# 8. FALLOS SISTEMÁTICOS: PATRONES DE ERROR
-# ============================================================
+
 print("\n" + "=" * 80)
 print("8. FALLOS SISTEMÁTICOS DE LA IA - PATRONES DETECTADOS")
 print("=" * 80)
 
-print("""
-PATRÓN 1: EMOJIS CONFUNDEN LA EXTRACCIÓN
-  - Posts con emojis tienen 45-50% menos extracción de datos
-  - La IA se distrae con caracteres especiales
-  
-PATRÓN 2: MONEDA NO EXPLÍCITA
-  - Cuando la moneda no está clara, el precio falla
-  - Especialmente con ARS vs USD sin indicación clara
-  
-PATRÓN 3: SUPERFICIES Y AMBIENTES CONFUNDIDOS
-  - M2 se extrae como número de ambientes
-  - Especialmente cuando hay "2 ambientes, 150 m2"
-  
-PATRÓN 4: TÍTULOS CORTOS = PEOR EXTRACCIÓN
-  - Posts muy cortos (< 100 caracteres) tienen 60% menos datos
-  - Falta contexto para la IA
-  
-PATRÓN 5: PRECIOS IMPLÍCITOS
-  - Cuando dice "consultar" en lugar de número, falla
-  - Formas de escribir precios: $XXX, USD XXX, "precio consultar"
-  
-PATRÓN 6: FUENTES DIFERENTE CALIDAD
-  - Instagram y redes sociales: calidad muy baja (30% precio)
-  - Portales inmobiliarios: calidad alta (70%+ precio)
-""")
 
-# ============================================================
-# 9. RANKING: CUÁNDO LA IA FALLA MÁS
-# ============================================================
+
+
 print("\n" + "=" * 80)
 print("9. RANKING: ESCENARIOS CON MÁS FALLOS DE IA (Top 10)")
 print("=" * 80)
@@ -323,7 +263,7 @@ for cat in ["Muy Corto (0-100)", "Corto (100-300)", "Medio (300-500)"]:
             "% Fallo Superficie": fail_rate_super,
         })
 
-# Con/sin emoji
+
 fallos.append({
     "Escenario": "Con Emojis",
     "Registros": len(con_emoji),
@@ -341,9 +281,7 @@ fallos.append({
 fallos_df = pd.DataFrame(fallos).sort_values("% Fallo Precio", ascending=False)
 print(fallos_df.to_string(index=False))
 
-# ============================================================
-# 10. GUARDAR REPORTE
-# ============================================================
+
 print("\n" + "=" * 80)
 print("10. GUARDANDO REPORTES")
 print("=" * 80)
