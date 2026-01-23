@@ -39,7 +39,6 @@ df["superficie_error"] = (df["superficie_cubierta"] <= 5) | (df["superficie_cubi
 
 print(f"\nErrores detectados: Precios inválidos = {df['precio_error'].sum()}, Superficies inválidas = {df['superficie_error'].sum()}")
 
-# Guardar versión final
 df.to_excel(output, index=False)
 print(f"Archivo limpio guardado en: {output}")
 

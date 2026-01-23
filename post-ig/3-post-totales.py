@@ -1,7 +1,6 @@
 import pandas as pd
 import os
 
-# Cargar datos
 file_path = os.path.expanduser('~/Downloads/Ogappy_14_01_2026.xlsx')
 df = pd.read_excel(file_path)
 

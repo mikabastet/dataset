@@ -42,10 +42,12 @@ plt.ylabel("Cantidad")
 plt.show()
 
 df_activas = pd.DataFrame(inmobiliarias_activas, columns=['Inmobiliaria'])
+output_path = os.path.expanduser('~/Downloads/inmobiliarias_activas_instagram.csv')
+df_activas.to_csv(output_path, index=False)
 
-output_path = os.path.expanduser('~/Downloads/inmobiliarias_activas_instagram.xlsx')
-df_activas.to_excel(output_path, index=False)
+
 
 #65 en total en ig 
 #37 activas en losultimos 30 dias
 #10 activas en corrientes capital
+#inactivas 28
