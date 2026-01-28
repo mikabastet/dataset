@@ -20,7 +20,7 @@ HeatMap(data_heat,
         gradient={0.4: 'blue', 0.65: 'lime', 1: 'red'}
        ).add_to(mapa)
 
-output_path = r"C:\Users\mika\Downloads\heatmap_inmuebles.html"
+output_path = r"C:\Users\mika\Downloads\dataset lau\heatmap_inmuebles.html"
 mapa.save(output_path)
 
 print(f"{output_path}")

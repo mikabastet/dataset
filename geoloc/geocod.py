@@ -67,10 +67,12 @@ for i, row in df.iterrows():
         print(f"Fila {i}: {row['direccion_limpia']} -> lat: {lat}, lon: {lon}")
 
 df.to_excel(output_path, index=False)
-print("Archivo geocodificado guardado en:", output_path)
-
-print("Registros totales:", len(df))
-print("Registros sin ubicación original:", mask_sin_ubi.sum())
-print("Registros con ubicación alternativa encontrada:", df["ubicacion_alternativa"].notna().sum())
-print("Registros sin ubicación final:", df["ubicacion_final"].isna().sum())
+print( output_path)
+print("totales:", len(df))
+print("sin ubicación original:", mask_sin_ubi.sum())
+print("ubicación alternativa :", df["ubicacion_alternativa"].notna().sum())
+print("sin ubicación final:", df["ubicacion_final"].isna().sum())
 print("Registros con latitud y longitud:", df["lat"].notna().sum())
+# El script geocodifica las ubicaciones de un dataset inmobiliario usando Nominatim.
+# Genera un archivo Excel con las coordenadas y muestra métricas del proceso.
+#registros totales 4537,registros sin ubicaio original 111, registro con ubicacion alternativa 80, registros sin ubicacion final 51, registros con latitud y longitud 4370

@@ -74,7 +74,7 @@ print("Archivo descartados:", output_sin_ubicacion)
 
 df = df.drop(df_sin_ubicacion.index).copy()
 
-print("Avisos con ubicación válida:", len(df))
+print("ubicación válida:", len(df))
 
 def validar_aviso(row):
     precio = pd.to_numeric(row["precio"], errors="coerce")
@@ -116,10 +116,10 @@ df.loc[mask_sin_ubicacion, ["barrio_normalizado", "zona"]] = (
 )
 
 
-print("Avisos recuperados por texto:", len(recuperados))
+print( len(recuperados))
 
 
 df_final.to_excel(output_final, index=False)
 
-print("Dataset final listo:", output_final)
+print( output_final)
 print(df_final["estado_aviso"].value_counts())
